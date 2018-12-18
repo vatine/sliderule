@@ -17,8 +17,8 @@ type Element interface {
 type Text struct {
 	text string
 	size float64
-	x float64
-	y float64
+	x    float64
+	y    float64
 }
 
 type subDash struct {
@@ -30,7 +30,7 @@ type Dash struct {
 }
 
 type Scale struct {
-	name Text
+	name  Text
 	elems []Element
 }
 
@@ -58,8 +58,8 @@ func MakeNumber(t string, x, y float64, size float64) Text {
 	xScale := float64(len(t)) / 6.0
 	return Text{
 		text: t,
-		x: x - (xScale * size),
-		y: y - size / 2.0,
+		x:    x - (xScale * size),
+		y:    y - size/2.0,
 		size: size}
 }
 
@@ -97,8 +97,8 @@ func (t Text) String() string {
 }
 
 // Render a Dash
-func (d Dash) Render (w io.Writer) {
-	fmt.Fprintf(w, `<line x1="%fmm" y1="%fmm" x2="%fmm" y2="%fmm" style="stroke:rgb(0,0,0);stroke-width:%f" />`, d.x, d.y, d.x, d.y + d.l, dashWidth)
+func (d Dash) Render(w io.Writer) {
+	fmt.Fprintf(w, `<line x1="%fmm" y1="%fmm" x2="%fmm" y2="%fmm" style="stroke:rgb(0,0,0);stroke-width:%f" />`, d.x, d.y, d.x, d.y+d.l, dashWidth)
 }
 
 // Render a Dash as a string
@@ -114,28 +114,28 @@ func (d Dash) String() string {
 // base, multiplied by the length of the scale.
 func positionOffset(number, base float64, length float64) float64 {
 	factor := log(number, base)
-//	fmt.Printf("DEBUG:\n  number = %f\n  base = %f\n  factor = %f\n  rv = %f\n\n", number, base, factor, length * factor)
+	//	fmt.Printf("DEBUG:\n  number = %f\n  base = %f\n  factor = %f\n  rv = %f\n\n", number, base, factor, length * factor)
 	return length * factor
 }
 
 // Return a slice of subDashes, basically just a series of dashes with
 // a specified length. Ensure that sbuDashes do not run together.
 func makeSubScale(start, step, base, length float64) []subDash {
-	halfway := start + 0.5 * step
+	halfway := start + 0.5*step
 	end := start + step
-	tenth := end - 0.1 * step
-	twentieth := end - 0.05 * step
+	tenth := end - 0.1*step
+	twentieth := end - 0.05*step
 	var rv []subDash
 	endPosition := positionOffset(end, base, length)
 
-	if math.Abs(endPosition - positionOffset(twentieth, base, length)) >= 1.0 {
+	if math.Abs(endPosition-positionOffset(twentieth, base, length)) >= 1.0 {
 		step := 0.1 * step
-		for x := start + step / 2; x < end; x = x + step {
+		for x := start + step/2; x < end; x = x + step {
 			pos := positionOffset(x, base, length)
 			rv = append(rv, subDash{pos, 1.0})
 		}
 	}
-	if math.Abs(endPosition - positionOffset(tenth, base, length)) >= 1.0 {
+	if math.Abs(endPosition-positionOffset(tenth, base, length)) >= 1.0 {
 		step := 0.1 * step
 		n := 1
 		for x := start + step; x < end; x = x + step {
@@ -146,7 +146,7 @@ func makeSubScale(start, step, base, length float64) []subDash {
 			n++
 		}
 	}
-	if math.Abs(endPosition - positionOffset(halfway, base, length)) >= 1.0 {
+	if math.Abs(endPosition-positionOffset(halfway, base, length)) >= 1.0 {
 		pos := positionOffset(halfway, base, length)
 		rv = append(rv, subDash{pos, 3.0})
 	}
@@ -173,19 +173,19 @@ func MakeLogScale(tens int, l, xOffset, yOffset float64, name string) Scale {
 	nameXOffset := xOffset - 10.0
 	if l < 0.0 {
 		// Reverse scale, stick the name on the opposite side
-		nameXOffset = (l+xOffset) - 10.0
+		nameXOffset = (l + xOffset) - 10.0
 	}
 	nameYOffset := yOffset + 4.0
 
 	for i := 1; i <= 10; i++ {
 		k := 1
 		for j := 1; j <= tens; j++ {
-			offset := xOffset + positionOffset(float64(i * k), max, l)
-			t := fmt.Sprintf("%d", i * k)
-			elems = append(elems, Element(MakeNumber(t, offset, yOffset + 2, 8.0)))
+			offset := xOffset + positionOffset(float64(i*k), max, l)
+			t := fmt.Sprintf("%d", i*k)
+			elems = append(elems, Element(MakeNumber(t, offset, yOffset+2, 8.0)))
 			elems = append(elems, Dash{x: offset, y: yOffset, l: 4.0})
 			if i < 10 {
-				for _, dash := range makeSubScale(float64(i * k), float64(k), max, l) {
+				for _, dash := range makeSubScale(float64(i*k), float64(k), max, l) {
 					elems = append(elems, Dash{x: xOffset + dash.val, y: yOffset, l: dash.len})
 				}
 			}
@@ -203,7 +203,7 @@ func MakeLinScale(tens int, l, xOffset, yOffset float64, name string) Scale {
 	nameXOffset := xOffset - 10.0
 	if l < 0.0 {
 		// Reverse scale, stick the name on the opposite side
-		nameXOffset = (l+xOffset) - 10.0
+		nameXOffset = (l + xOffset) - 10.0
 	}
 	nameYOffset := yOffset + 4.0
 
@@ -215,7 +215,7 @@ func MakeSlideRule(width, height float64) Sliderule {
 	s := Sliderule{width: width, height: height}
 	l := width - 30.0
 
-	s.scales = append(s.scales, MakeLogScale(1, l, 15.0, height/6.0 , "A"))
+	s.scales = append(s.scales, MakeLogScale(1, l, 15.0, height/6.0, "A"))
 	s.scales = append(s.scales, MakeLogScale(2, l, 15.0, height/3, "B"))
 	s.scales = append(s.scales, MakeLogScale(1, -l, l+15.0, 2*height/3, "C"))
 

@@ -7,7 +7,7 @@ import (
 	"sliderule/lib"
 )
 
-func main () {
+func main() {
 	out, err := os.Create("/Users/ingvar/tmp/slide.svg")
 	if err != nil {
 		fmt.Println(err)
