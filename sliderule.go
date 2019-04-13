@@ -4,7 +4,8 @@ import (
 	//"bytes"
 	"fmt"
 	"os"
-	"sliderule/lib"
+
+	"github.com/vatine/sliderule/lib"
 )
 
 func main() {

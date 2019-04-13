@@ -196,6 +196,7 @@ func MakeLogScale(tens int, l, xOffset, yOffset float64, name string) Scale {
 	return Scale{name: MakeNumber(name, nameXOffset, nameYOffset, 8.0), elems: elems}
 }
 
+// Make a linear scale, with ranging from 0 to 10 ** tens
 func MakeLinScale(tens int, l, xOffset, yOffset float64, name string) Scale {
 	elems := []Element{}
 	max := math.Pow10(tens)
@@ -210,14 +211,39 @@ func MakeLinScale(tens int, l, xOffset, yOffset float64, name string) Scale {
 	return Scale{name: MakeNumber(name, nameXOffset, nameYOffset, 8.0), elems: elems}
 }
 
+// Returns a "classic" A scale, a log scale going from 1 to 100
+func AScale(width, heightOffset float64) Scale {
+	return MakeLogScale(2, width, 15.0, heightOffset, "A")
+}
+
+// Returns a "classic" B scale, a log scale going from 1 to 100
+func BScale(width, heightOffset float64) Scale {
+	return MakeLogScale(2, width, 15.0, heightOffset, "B")
+}
+
+// Returns a "classic" C scale, a log scale going from 1 to 10
+func CScale(width, heightOffset float64) Scale {
+	return MakeLogScale(1, width, 15.0, heightOffset, "B")
+}
+
+// Returns a "classic" CI scale, a log scale going from 1 to 10
+func CIScale(width, heightOffset float64) Scale {
+	return MakeLogScale(1, -width, 15.0, heightOffset, "B")
+}
+
+// Returns a "classic" D scale, a log scale going from 1 to 10
+func DScale(width, heightOffset float64) Scale {
+	return MakeLogScale(1, width, 15.0, heightOffset, "B")
+}
+
 // Create a sliderule, with some random scales
 func MakeSlideRule(width, height float64) Sliderule {
 	s := Sliderule{width: width, height: height}
 	l := width - 30.0
 
-	s.scales = append(s.scales, MakeLogScale(1, l, 15.0, height/6.0, "A"))
-	s.scales = append(s.scales, MakeLogScale(2, l, 15.0, height/3, "B"))
-	s.scales = append(s.scales, MakeLogScale(1, -l, l+15.0, 2*height/3, "C"))
+	s.scales = append(s.scales, AScale(l, height/6.0))
+	s.scales = append(s.scales, CScale(l, height/3))
+	s.scales = append(s.scales, CIScale(l+15.0, 2*height/3))
 
 	return s
 }
